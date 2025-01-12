@@ -3,6 +3,20 @@ import os
 import re
 import argparse
 
+try:
+    from rich.console import Console
+    from rich.theme import Theme
+    console = Console(theme=Theme(
+        {
+            "info": "green",
+            "warning": "yellow",
+            "error": "bold red",
+        }
+    ))
+    rich_available = True
+except ImportError:
+    rich_available = False
+
 def find_dart_files(directory):
     dart_files = []
     for root, _, files in os.walk(directory):
@@ -40,7 +54,10 @@ def read_pubspec_dependencies(pubspec_path):
 def analyze_unused(project_dir):
     pubspec_path = os.path.join(project_dir, 'pubspec.yaml')
     if not os.path.exists(pubspec_path):
-        print(f"Error: pubspec.yaml not found in {project_dir}")
+        if rich_available:
+            console.print(f"Error: pubspec.yaml not found in {project_dir}", style="error")
+        else:
+            print(f"Error: pubspec.yaml not found in {project_dir}")
         return
 
     all_dependencies = read_pubspec_dependencies(pubspec_path)
@@ -79,18 +96,34 @@ def main():
     unused_dependencies, unused_files = analyze_unused(project_dir)
 
     if unused_dependencies:
-        print("Unused dependencies:")
-        for dep in unused_dependencies:
-            print(f"- {dep}")
+        if rich_available:
+            console.print("Unused dependencies:", style="warning")
+            for dep in unused_dependencies:
+                console.print(f"- {dep}", style="info")
+        else:
+            print("Unused dependencies:")
+            for dep in unused_dependencies:
+                print(f"- {dep}")
     else:
-        print("No unused dependencies found.")
+        if rich_available:
+            console.print("No unused dependencies found.", style="info")
+        else:
+            print("No unused dependencies found.")
 
     if unused_files:
-        print("\nUnused files:")
-        for file in unused_files:
-            print(f"- {file}")
+        if rich_available:
+            console.print("\nUnused files:", style="warning")
+            for file in unused_files:
+                console.print(f"- {file}", style="info")
+        else:
+            print("\nUnused files:")
+            for file in unused_files:
+                print(f"- {file}")
     else:
-        print("\nNo unused files found.")
+        if rich_available:
+            console.print("\nNo unused files found.", style="info")
+        else:
+            print("\nNo unused files found.")
 
 if __name__ == "__main__":
     main()
