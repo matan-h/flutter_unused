@@ -18,6 +18,14 @@ def extract_imports(dart_file):
             match = re.match(r"import ['\"]package:([^'\"]+)['\"]", line)
             if match:
                 imports.add(match.group(1).split('/')[0])
+            else:
+                match = re.match(r"import ['\"]([^'\"]+)['\"]", line)
+                if match:
+                    import_path = match.group(1)
+                    if not import_path.startswith('dart:'):
+                        parts = import_path.split('/')
+                        if parts and not parts[0].startswith('.'):
+                            imports.add(parts[0])
     return imports
 
 def read_pubspec_dependencies(pubspec_path):
