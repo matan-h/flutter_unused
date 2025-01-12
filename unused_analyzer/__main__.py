@@ -63,3 +63,6 @@ def main():
             report.write_report(args.output)
         else:
             report.print_report()
+
+if __name__ == "__main__":
+    main()
