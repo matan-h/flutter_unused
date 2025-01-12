@@ -6,6 +6,8 @@ import argparse
 def find_dart_files(directory):
     dart_files = []
     for root, _, files in os.walk(directory):
+        if 'test' in root.split(os.sep) or 'integration_test' in root.split(os.sep):
+            continue
         for file in files:
             if file.endswith(".dart"):
                 dart_files.append(os.path.join(root, file))
