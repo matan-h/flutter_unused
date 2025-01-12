@@ -52,7 +52,7 @@ def read_pubspec_dependencies(pubspec_path):
         dev_dependencies = set(pubspec.get('dev_dependencies', {}).keys())
         return dependencies.union(dev_dependencies)
 
-def analyze_unused(project_dir):
+def analyze_unused(project_dir, args):
     pubspec_path = os.path.join(project_dir, 'pubspec.yaml')
     if not os.path.exists(pubspec_path):
         if rich_available:
@@ -64,10 +64,11 @@ def analyze_unused(project_dir):
     all_dependencies = read_pubspec_dependencies(pubspec_path)
     used_dependencies = set()
     all_dart_files = find_dart_files(project_dir)
-    
+
     ignored_files = []
-    for ignore_pattern in args.ignore:
-        ignored_files.extend(glob.glob(os.path.join(project_dir, ignore_pattern), recursive=True))
+    if args.ignore:
+        for ignore_pattern in args.ignore:
+            ignored_files.extend(glob.glob(os.path.join(project_dir, ignore_pattern), recursive=True))
 
     all_dart_files = [f for f in all_dart_files if f not in ignored_files]
 
@@ -118,7 +119,7 @@ def main():
     args = parser.parse_args()
 
     project_dir = args.project_dir
-    unused_dependencies, unused_files = analyze_unused(project_dir)
+    unused_dependencies, unused_files = analyze_unused(project_dir, args)
 
     if args.output:
         write_report(args.output, unused_dependencies, unused_files)
