@@ -35,6 +35,10 @@ This will analyze the Flutter project located at `./my_flutter_project` and save
 
 Contributions are welcome! Please feel free to submit a pull request.
 
+## LLM Disclaimer
+
+Most of the code was written by LLM, specifically `airder/gemini2.0`.
+
 ## License
 
 This project is licensed under the MIT License.
