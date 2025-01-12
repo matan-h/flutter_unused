@@ -101,7 +101,7 @@ def analyze_unused(project_dir, args):
 
     return unused_dependencies, unused_files
 
-import yaml
+
 
 def write_report(output_path, unused_dependencies, unused_files):
     report = {}
