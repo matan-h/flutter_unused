@@ -103,6 +103,8 @@ def analyze_unused(project_dir, args):
                         break
         if not is_used:
             unused_files.append(dart_file)
+    
+    return Report(unused_dependencies, unused_files)
 
 class Report:
     def __init__(self, unused_dependencies, unused_files):
@@ -140,34 +142,6 @@ class Report:
             print_output("\nNo unused files found.", style="info")
 
 
-
-def write_report(output_path, unused_dependencies, unused_files):
-    report = {}
-    if unused_dependencies:
-        report['unused_dependencies'] = list(unused_dependencies)
-    else:
-        report['unused_dependencies'] = []
-
-    if unused_files:
-        report['unused_files'] = [os.path.relpath(f, start=os.getcwd()) for f in unused_files]
-    else:
-        report['unused_files'] = []
-
-def write_report(output_path, unused_dependencies, unused_files):
-    report = {}
-    if unused_dependencies:
-        report['unused_dependencies'] = list(unused_dependencies)
-    else:
-        report['unused_dependencies'] = []
-
-    if unused_files:
-        report['unused_files'] = [os.path.relpath(f, start=os.getcwd()) for f in unused_files]
-    else:
-        report['unused_files'] = []
-
-    with open(output_path, 'w', encoding='utf-8') as f:
-        yaml.dump(report, f, indent=2)
-
 def main():
     parser = argparse.ArgumentParser(description="Analyze Flutter project for unused dependencies and files.")
     parser.add_argument("project_dir", help="Path to the Flutter project directory.")
@@ -178,10 +152,11 @@ def main():
     project_dir = os.path.realpath(args.project_dir)
     report = analyze_unused(project_dir, args)
 
-    if args.output:
-        report.write_report(args.output)
-    else:
-        report.print_report()
+    if report:
+        if args.output:
+            report.write_report(args.output)
+        else:
+            report.print_report()
 
 if __name__ == "__main__":
     main()
