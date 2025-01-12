@@ -2,6 +2,7 @@ import yaml
 import os
 import re
 import argparse
+import glob
 
 try:
     from rich.console import Console
@@ -63,6 +64,12 @@ def analyze_unused(project_dir):
     all_dependencies = read_pubspec_dependencies(pubspec_path)
     used_dependencies = set()
     all_dart_files = find_dart_files(project_dir)
+    
+    ignored_files = []
+    for ignore_pattern in args.ignore:
+        ignored_files.extend(glob.glob(os.path.join(project_dir, ignore_pattern), recursive=True))
+
+    all_dart_files = [f for f in all_dart_files if f not in ignored_files]
 
     for dart_file in all_dart_files:
         used_dependencies.update(extract_imports(dart_file))
@@ -107,6 +114,7 @@ def main():
     parser = argparse.ArgumentParser(description="Analyze Flutter project for unused dependencies and files.")
     parser.add_argument("project_dir", help="Path to the Flutter project directory.")
     parser.add_argument("-o", "--output", help="Path to the output report file.")
+    parser.add_argument("--ignore", help="Glob pattern to ignore files.", action='append', default=[])
     args = parser.parse_args()
 
     project_dir = args.project_dir
