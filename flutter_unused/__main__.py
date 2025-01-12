@@ -32,6 +32,8 @@ def analyze_unused(project_dir, args):
 
     # Check for unused files (basic check: if a file is not imported, it's considered unused)
     for dart_file in all_dart_files:
+        if os.path.basename(dart_file) == "main.dart" and "lib" in dart_file.split(os.sep):
+            continue
         is_used = False
         for other_dart_file in all_dart_files:
             if dart_file != other_dart_file:
