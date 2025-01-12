@@ -1,3 +1,3 @@
-# Unused Analyzer
+# Flutter Unused
 
-A tool to analyze unused dependencies and files in Dart projects.
+A tool to analyze unused dependencies and files in Flutter projects.

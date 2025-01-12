@@ -1,7 +1,7 @@
 import argparse
 import os
-from unused_analyzer.finder import find_dart_files, extract_imports, read_pubspec_dependencies
-from unused_analyzer.report import Report, print_output
+from flutter_unused.finder import find_dart_files, extract_imports, read_pubspec_dependencies
+from flutter_unused.report import Report, print_output
 import glob
 import re
 
