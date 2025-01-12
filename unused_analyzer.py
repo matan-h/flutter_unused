@@ -18,6 +18,12 @@ try:
 except ImportError:
     rich_available = False
 
+def print_output(message, style=None):
+    if rich_available:
+        console.print(message, style=style)
+    else:
+        print(message)
+
 def find_dart_files(directory):
     dart_files = []
     for root, _, files in os.walk(directory):
@@ -95,21 +101,22 @@ def analyze_unused(project_dir, args):
 
     return unused_dependencies, unused_files
 
-def write_report(output_path, unused_dependencies, unused_files):
-    with open(output_path, 'w', encoding='utf-8') as f:
-        if unused_dependencies:
-            f.write("Unused dependencies:\n")
-            for dep in unused_dependencies:
-                f.write(f"- {dep}\n")
-        else:
-            f.write("No unused dependencies found.\n")
+import yaml
 
-        if unused_files:
-            f.write("\nUnused files:\n")
-            for file in unused_files:
-                f.write(f"- {file}\n")
-        else:
-            f.write("\nNo unused files found.\n")
+def write_report(output_path, unused_dependencies, unused_files):
+    report = {}
+    if unused_dependencies:
+        report['unused_dependencies'] = list(unused_dependencies)
+    else:
+        report['unused_dependencies'] = []
+
+    if unused_files:
+        report['unused_files'] = [os.path.relpath(f, start=os.getcwd()) for f in unused_files]
+    else:
+        report['unused_files'] = []
+
+    with open(output_path, 'w', encoding='utf-8') as f:
+        yaml.dump(report, f, indent=2)
 
 def main():
     parser = argparse.ArgumentParser(description="Analyze Flutter project for unused dependencies and files.")
@@ -125,34 +132,18 @@ def main():
         write_report(args.output, unused_dependencies, unused_files)
     else:
         if unused_dependencies:
-            if rich_available:
-                console.print("Unused dependencies:", style="warning")
-                for dep in unused_dependencies:
-                    console.print(f"- {dep}", style="info")
-            else:
-                print("Unused dependencies:")
-                for dep in unused_dependencies:
-                    print(f"- {dep}")
+            print_output("Unused dependencies:", style="warning")
+            for dep in unused_dependencies:
+                print_output(f"- {dep}", style="info")
         else:
-            if rich_available:
-                console.print("No unused dependencies found.", style="info")
-            else:
-                print("No unused dependencies found.")
+            print_output("No unused dependencies found.", style="info")
 
         if unused_files:
-            if rich_available:
-                console.print("\nUnused files:", style="warning")
-                for file in unused_files:
-                    console.print(f"- {file}", style="info")
-            else:
-                print("\nUnused files:")
-                for file in unused_files:
-                    print(f"- {file}")
+            print_output("\nUnused files:", style="warning")
+            for file in unused_files:
+                print_output(f"- {os.path.relpath(file, start=os.getcwd())}", style="info")
         else:
-            if rich_available:
-                console.print("\nNo unused files found.", style="info")
-            else:
-                print("\nNo unused files found.")
+            print_output("\nNo unused files found.", style="info")
 
 if __name__ == "__main__":
     main()
