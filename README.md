@@ -21,7 +21,8 @@ This will output a report of unused dependencies and files.
 ### Options
 
 *   `-h`, `--help`: Show help message and exit.
-*   `--output <output_path>`: Specify the path to save the report to a file.
+*   `-o`, `--output <output_path>`: Specify the path to save the report to a file.
+*   `--ignore <glob_pattern>`: Glob pattern to ignore files. This option can be used multiple times.
 
 ## Example
 
