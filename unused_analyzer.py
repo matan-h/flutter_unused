@@ -104,7 +104,7 @@ def analyze_unused(project_dir, args):
         if not is_used:
             unused_files.append(dart_file)
 
-    return unused_dependencies, unused_files
+    return Report(unused_dependencies, unused_files)
 
 
 
