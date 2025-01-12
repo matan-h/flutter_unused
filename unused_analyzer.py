@@ -125,7 +125,7 @@ def main():
     parser.add_argument("--ignore", help="Glob pattern to ignore files.", action='append', default=[])
     args = parser.parse_args()
 
-    project_dir = args.project_dir
+    project_dir = os.path.realpath(args.project_dir)
     unused_dependencies, unused_files = analyze_unused(project_dir, args)
 
     if args.output:
