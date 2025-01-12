@@ -104,9 +104,54 @@ def analyze_unused(project_dir, args):
         if not is_used:
             unused_files.append(dart_file)
 
-    return Report(unused_dependencies, unused_files)
+class Report:
+    def __init__(self, unused_dependencies, unused_files):
+        self.unused_dependencies = unused_dependencies
+        self.unused_files = unused_files
+
+    def write_report(self, output_path):
+        report = {}
+        if self.unused_dependencies:
+            report['unused_dependencies'] = list(self.unused_dependencies)
+        else:
+            report['unused_dependencies'] = []
+
+        if self.unused_files:
+            report['unused_files'] = [os.path.relpath(f, start=os.getcwd()) for f in self.unused_files]
+        else:
+            report['unused_files'] = []
+
+        with open(output_path, 'w', encoding='utf-8') as f:
+            yaml.dump(report, f, indent=2)
+
+    def print_report(self):
+        if self.unused_dependencies:
+            print_output("Unused dependencies:", style="warning")
+            for dep in self.unused_dependencies:
+                print_output(f"- {dep}", style="info")
+        else:
+            print_output("No unused dependencies found.", style="info")
+
+        if self.unused_files:
+            print_output("\nUnused files:", style="warning")
+            for file in self.unused_files:
+                print_output(f"- {os.path.relpath(file, start=os.getcwd())}", style="info")
+        else:
+            print_output("\nNo unused files found.", style="info")
 
 
+
+def write_report(output_path, unused_dependencies, unused_files):
+    report = {}
+    if unused_dependencies:
+        report['unused_dependencies'] = list(unused_dependencies)
+    else:
+        report['unused_dependencies'] = []
+
+    if unused_files:
+        report['unused_files'] = [os.path.relpath(f, start=os.getcwd()) for f in unused_files]
+    else:
+        report['unused_files'] = []
 
 def write_report(output_path, unused_dependencies, unused_files):
     report = {}
@@ -131,24 +176,12 @@ def main():
     args = parser.parse_args()
 
     project_dir = os.path.realpath(args.project_dir)
-    unused_dependencies, unused_files = analyze_unused(project_dir, args)
+    report = analyze_unused(project_dir, args)
 
     if args.output:
-        write_report(args.output, unused_dependencies, unused_files)
+        report.write_report(args.output)
     else:
-        if unused_dependencies:
-            print_output("Unused dependencies:", style="warning")
-            for dep in unused_dependencies:
-                print_output(f"- {dep}", style="info")
-        else:
-            print_output("No unused dependencies found.", style="info")
-
-        if unused_files:
-            print_output("\nUnused files:", style="warning")
-            for file in unused_files:
-                print_output(f"- {os.path.relpath(file, start=os.getcwd())}", style="info")
-        else:
-            print_output("\nNo unused files found.", style="info")
+        report.print_report()
 
 if __name__ == "__main__":
     main()
