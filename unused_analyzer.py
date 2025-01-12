@@ -26,13 +26,16 @@ def print_output(message, style=None):
 
 def find_dart_files(directory):
     dart_files = []
+    test_files = []
     for root, _, files in os.walk(directory):
-        if 'test' in root.split(os.sep) or 'integration_test' in root.split(os.sep) or '.dart_tool' in root.split(os.sep):
-            continue
         for file in files:
             if file.endswith(".dart"):
-                dart_files.append(os.path.join(root, file))
-    return dart_files
+                full_path = os.path.join(root, file)
+                if 'test' in root.split(os.sep) or 'integration_test' in root.split(os.sep):
+                    test_files.append(full_path)
+                elif '.dart_tool' not in root.split(os.sep):
+                    dart_files.append(full_path)
+    return dart_files, test_files
 
 def extract_imports(dart_file):
     imports = set()
@@ -69,7 +72,7 @@ def analyze_unused(project_dir, args):
 
     all_dependencies = read_pubspec_dependencies(pubspec_path)
     used_dependencies = set()
-    all_dart_files = find_dart_files(project_dir)
+    all_dart_files, test_files = find_dart_files(project_dir)
 
     ignored_files = []
     if args.ignore:
@@ -77,9 +80,11 @@ def analyze_unused(project_dir, args):
             ignored_files.extend(glob.glob(os.path.join(project_dir, ignore_pattern), recursive=True))
 
     all_dart_files = [f for f in all_dart_files if f not in ignored_files]
-
+    
     for dart_file in all_dart_files:
         used_dependencies.update(extract_imports(dart_file))
+    for test_file in test_files:
+        used_dependencies.update(extract_imports(test_file))
 
     unused_dependencies = all_dependencies - used_dependencies
     unused_files = []
